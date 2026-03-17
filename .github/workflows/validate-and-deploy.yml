@@ -149,7 +149,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build admin-spa
         run: bash scripts/build-spa.sh admin-spa
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: admin-spa-dist
           path: apps/admin-spa/dist/
@@ -169,7 +169,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build portal-spa
         run: bash scripts/build-spa.sh portal-spa
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: portal-spa-dist
           path: apps/portal-spa/dist/
@@ -239,7 +239,7 @@ jobs:
         run: pnpm test:e2e
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
