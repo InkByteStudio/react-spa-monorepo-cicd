@@ -6,6 +6,6 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "devDependencies": {
-    "vitest": "^3.0.4"
+    "vitest": "^4.1.0"
   }
 }
