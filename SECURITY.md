@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in this project, please report it responsibly.
 
-**Do not open a public issue.** Instead, send an email to **[INSERT CONTACT EMAIL]** with:
+**Do not open a public issue.** Instead, send an email to **theinkbytestudio@gmail.com** with:
 
 - A description of the vulnerability
 - Steps to reproduce it
