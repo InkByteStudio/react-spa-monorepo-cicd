@@ -82,6 +82,699 @@
           </div>
         </div>
       </section>
+
+      <section class="pipeline">
+        <h2 class="section-heading">CI/CD Pipeline</h2>
+        <p class="section-intro">
+          Every push triggers a five-stage pipeline that detects what changed,
+          validates code quality, builds production bundles, runs end-to-end
+          tests, and deploys &mdash; automatically.
+        </p>
+
+        <div class="pipeline-flow">
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">1</div>
+            <div class="pipeline-step-content">
+              <h3>Change Detection</h3>
+              <p>
+                The pipeline diffs the commit to identify which apps and
+                packages changed. Shared package changes cascade to all
+                dependent apps. Only affected apps proceed through the
+                remaining stages.
+              </p>
+              <a
+                class="source-link"
+                href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/.github/workflows/validate-and-deploy.yml"
+                target="_blank"
+                rel="noopener"
+                >View workflow &#8599;</a
+              >
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">2</div>
+            <div class="pipeline-step-content">
+              <h3>Validation Gates</h3>
+              <p>
+                Five checks run in parallel: Prettier format verification,
+                ESLint, TypeScript type checking, Vitest unit tests with an 80%
+                coverage threshold, and an npm security audit. All five must
+                pass before the pipeline continues.
+              </p>
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">3</div>
+            <div class="pipeline-step-content">
+              <h3>Build</h3>
+              <p>
+                Each affected SPA produces an optimized production bundle via
+                Vite. Build artifacts are uploaded and reused in later stages so
+                nothing is built twice.
+              </p>
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">4</div>
+            <div class="pipeline-step-content">
+              <h3>E2E Tests</h3>
+              <p>
+                All three apps are served via Docker and nginx, mirroring
+                production routing. Playwright runs 28 tests on Desktop Chrome
+                and Mobile Pixel 5 &mdash; covering functionality, accessibility
+                (axe-core WCAG), and visual regression.
+              </p>
+              <a
+                class="source-link"
+                href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/playwright.config.ts"
+                target="_blank"
+                rel="noopener"
+                >View Playwright config &#8599;</a
+              >
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">5</div>
+            <div class="pipeline-step-content">
+              <h3>Deploy</h3>
+              <p>
+                Affected apps deploy via rsync with timestamped backups. A
+                health check confirms each app is live after deployment. Both
+                staging and production environments are supported.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-footer">
+          <p class="run-locally">
+            Run the full validation suite locally:
+            <code>pnpm lint</code> &middot; <code>pnpm typecheck</code> &middot;
+            <code>pnpm test</code> &middot; <code>pnpm test:coverage</code>
+          </p>
+          <p class="run-locally">
+            Or run everything in one command: <code>pnpm run-all</code>
+          </p>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/.github/workflows/validate-and-deploy.yml"
+              target="_blank"
+              rel="noopener"
+              >GitHub Actions workflow &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/.gitlab-ci.yml"
+              target="_blank"
+              rel="noopener"
+              >GitLab CI config &#8599;</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="e2e-testing">
+        <h2 class="section-heading">End-to-End Testing</h2>
+        <p class="section-intro">
+          E2E tests use a real browser to interact with the app the way a user
+          would &mdash; clicking links, reading text, navigating between pages.
+          Unlike unit tests that check isolated functions, E2E tests verify that
+          everything works together: the server, the routing, the rendered UI,
+          and the user flow. This project runs 28 Playwright tests across 5
+          testing categories.
+        </p>
+
+        <div class="e2e-environment">
+          <h3>Test Environment</h3>
+          <p>
+            Tests run against a Docker container with nginx serving all three
+            apps on port 8080 &mdash; the same routing rules, SPA fallbacks,
+            and security headers used in production. This matters because tests
+            that skip the real server miss entire categories of bugs: a
+            misconfigured nginx route, a missing SPA fallback, or a broken path
+            prefix. By testing against the real infrastructure, E2E catches what
+            unit tests and dev servers cannot.
+          </p>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/docker/docker-compose.yml"
+              target="_blank"
+              rel="noopener"
+              >docker-compose.yml &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/docker/nginx/default.conf"
+              target="_blank"
+              rel="noopener"
+              >nginx config &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/playwright.config.ts"
+              target="_blank"
+              rel="noopener"
+              >playwright.config.ts &#8599;</a
+            >
+          </div>
+        </div>
+
+        <!-- Group 1: Smoke Tests -->
+        <div class="test-group">
+          <h3>
+            Smoke Tests <span class="test-count">3 tests</span>
+          </h3>
+          <p class="test-group-what">
+            Navigate to each app's URL and check that the server responds with
+            HTTP 200.
+          </p>
+          <p class="test-group-why">
+            <strong>Why this matters:</strong> The most basic test possible
+            &mdash; if the server returns an error code, nothing else matters.
+            Smoke tests catch broken builds, missing files, and misconfigured
+            nginx routing before any other test runs. They answer one question:
+            "Is the app reachable?"
+          </p>
+          <div class="test-how">
+            <strong>How it works:</strong>
+            <code>page.goto("/admin/")</code> opens a real Chromium browser to
+            that URL. <code>response.status()</code> reads the HTTP status code
+            from the server's response. The test asserts it equals
+            <code>200</code>.
+          </div>
+          <ul class="test-list">
+            <li class="test-item">
+              <span class="test-item-name">homepage loads successfully</span>
+              <span class="test-item-desc"
+                >Main site at <code>/</code> returns 200</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">loads successfully</span>
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Admin SPA at <code>/admin/</code> returns 200</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">loads successfully</span>
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Portal SPA at <code>/portal/</code> returns 200</span
+              >
+            </li>
+          </ul>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/main-site.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >main-site.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/admin-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >admin-spa.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/portal-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >portal-spa.spec.ts &#8599;</a
+            >
+          </div>
+        </div>
+
+        <!-- Group 2: Content Verification -->
+        <div class="test-group">
+          <h3>
+            Content Verification <span class="test-count">10 tests</span>
+          </h3>
+          <p class="test-group-what">
+            After each page loads, assert that specific headings, text, and UI
+            elements are visible in the browser.
+          </p>
+          <p class="test-group-why">
+            <strong>Why this matters:</strong> A page can return HTTP 200 but
+            render nothing &mdash; a blank white screen with an empty
+            <code>&lt;div id="root"&gt;</code>. Content verification proves
+            that React actually mounted, the correct component rendered, and
+            real data is displayed. If the heading reads "Admin Dashboard", it
+            means the router matched the right route, the component imported
+            successfully, and the DOM is populated.
+          </p>
+          <div class="test-how">
+            <strong>How it works:</strong>
+            <code>page.locator("h1")</code> finds elements by CSS selector.
+            <code>toHaveText("Admin Dashboard")</code> asserts the element's
+            text content. <code>page.getByText("Total Users")</code> finds
+            elements by visible text content. <code>toBeVisible()</code>
+            confirms the element is rendered and not hidden.
+          </div>
+          <ul class="test-list">
+            <li class="test-item">
+              <span class="test-item-name"
+                >displays site header and navigation</span
+              >
+              <span class="test-item-desc"
+                >Verifies the nav bar and brand link rendered on the main
+                site</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">has navigation links to SPAs</span>
+              <span class="test-item-desc"
+                >Checks that links to <code>/admin/</code> and
+                <code>/portal/</code> exist in the nav</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">displays hero section</span>
+              <span class="test-item-desc"
+                >Asserts the hero heading reads "Multiapp Monorepo"</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">displays feature cards</span>
+              <span class="test-item-desc"
+                >Counts exactly 3 feature cards on the page</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >displays admin dashboard heading</span
+              >
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Asserts the h1 reads "Admin Dashboard" &mdash; proves React
+                mounted and the router matched</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">displays today's date</span>
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Verifies the date element is visible, confirming the shared
+                date utility works</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >displays stat cards on dashboard</span
+              >
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Checks "Total Users", "Active Projects", and "Monthly Revenue"
+                text is visible</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">displays recent activity</span>
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Confirms the activity feed section rendered with data</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">displays dashboard heading</span>
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Asserts the h1 reads "Dashboard"</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >displays stat cards on dashboard</span
+              >
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Checks "Active Projects", "Tasks Completed", and "Open
+                Tickets" are visible</span
+              >
+            </li>
+          </ul>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/main-site.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >main-site.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/admin-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >admin-spa.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/portal-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >portal-spa.spec.ts &#8599;</a
+            >
+          </div>
+        </div>
+
+        <!-- Group 3: Navigation Testing -->
+        <div class="test-group">
+          <h3>
+            Navigation Testing <span class="test-count">10 tests</span>
+          </h3>
+          <p class="test-group-what">
+            Click links and buttons in the UI, then verify the correct page
+            loads with the expected content.
+          </p>
+          <p class="test-group-why">
+            <strong>Why this matters:</strong> Navigation tests verify that the
+            router actually works &mdash; that clicking "Users" in the sidebar
+            navigates to the Users page and renders real content. This catches
+            broken <code>&lt;Link&gt;</code> components, wrong
+            <code>href</code> values, misconfigured
+            <code>basename</code> in React Router, and nginx routing issues
+            between apps. The cross-app tests are especially important: they
+            prove a user can click from the static main site into a React SPA
+            and land on the correct page, which requires nginx, the SPA's
+            router, and the build output to all agree on the URL structure.
+          </p>
+          <div class="test-how">
+            <strong>How it works:</strong>
+            <code>page.getByRole("link", { name: "Users" })</code> finds a link
+            by its accessible name (what a screen reader would announce), not a
+            fragile CSS selector. <code>.click()</code> simulates a real mouse
+            click. Then we assert the new page heading appeared, confirming
+            navigation completed.
+          </div>
+          <ul class="test-list">
+            <li class="test-item">
+              <span class="test-item-name">navigates to users page</span>
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Clicks "Users" link, asserts h1 reads "Users" and "Alice
+                Johnson" is visible</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">navigates to projects page</span>
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Clicks "Projects" link, asserts h1 reads "Projects" and
+                "Website Redesign" is visible</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">navigates to settings page</span>
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Clicks "Settings" link, asserts h1 reads "Settings"</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">navigates to projects page</span>
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Clicks "Projects" link, asserts "Website Redesign" is
+                visible</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">navigates to billing page</span>
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Clicks "Billing" link, asserts h1 reads "Billing"</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >navigates to support page with contact form</span
+              >
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Clicks "Support", asserts the "Send Message" button is
+                visible</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name">navigates to account page</span>
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Clicks "Account", asserts h1 reads "Account Settings"</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >navigate from main site to admin SPA</span
+              >
+              <span class="test-item-app">cross-app</span>
+              <span class="test-item-desc"
+                >From <code>/</code>, clicks the admin link and asserts "Admin
+                Dashboard" heading appeared &mdash; proving nginx routing and
+                the SPA both work</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >navigate from main site to portal SPA</span
+              >
+              <span class="test-item-app">cross-app</span>
+              <span class="test-item-desc"
+                >From <code>/</code>, clicks the portal link and asserts
+                "Dashboard" heading appeared</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >all three apps are accessible</span
+              >
+              <span class="test-item-app">cross-app</span>
+              <span class="test-item-desc"
+                >Visits all three URLs in sequence &mdash; <code>/</code>,
+                <code>/admin/</code>, <code>/portal/</code> &mdash; and asserts
+                each returns 200 with the correct heading</span
+              >
+            </li>
+          </ul>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/admin-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >admin-spa.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/portal-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >portal-spa.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/cross-app-navigation.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >cross-app-navigation.spec.ts &#8599;</a
+            >
+          </div>
+        </div>
+
+        <!-- Group 4: Accessibility Testing -->
+        <div class="test-group">
+          <h3>
+            Accessibility Testing <span class="test-count">2 tests</span>
+          </h3>
+          <p class="test-group-what">
+            Run the axe-core accessibility engine against each SPA's fully
+            rendered page and assert zero WCAG violations.
+          </p>
+          <p class="test-group-why">
+            <strong>Why this matters:</strong> Automated accessibility testing
+            catches common issues that make apps unusable for people with
+            disabilities &mdash; missing alt text on images, insufficient color
+            contrast between text and background, form inputs without labels,
+            and incorrect ARIA attributes. These tests check against WCAG 2.0
+            A/AA and WCAG 2.1 A/AA standards. They won't catch everything (you
+            still need manual testing for keyboard navigation and screen reader
+            flow), but they catch the most common violations automatically on
+            every commit, preventing regressions.
+          </p>
+          <div class="test-how">
+            <strong>How it works:</strong> The
+            <code>@axe-core/playwright</code> package injects the axe
+            accessibility engine into the page after it renders.
+            <code>new AxeBuilder({ page })</code> creates a scanner.
+            <code>.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])</code>
+            configures which WCAG rules to check (about 80 rules total).
+            <code>.analyze()</code> scans every element in the DOM. The test
+            asserts <code>results.violations</code> is an empty array &mdash;
+            any violation fails the build.
+          </div>
+          <ul class="test-list">
+            <li class="test-item">
+              <span class="test-item-name"
+                >has no accessibility violations</span
+              >
+              <span class="test-item-app">admin</span>
+              <span class="test-item-desc"
+                >Scans the admin dashboard for WCAG violations after React
+                renders all components</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >has no accessibility violations</span
+              >
+              <span class="test-item-app">portal</span>
+              <span class="test-item-desc"
+                >Scans the portal dashboard for WCAG violations after React
+                renders all components</span
+              >
+            </li>
+          </ul>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/admin-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >admin-spa.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/portal-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >portal-spa.spec.ts &#8599;</a
+            >
+          </div>
+        </div>
+
+        <!-- Group 5: Visual Regression Testing -->
+        <div class="test-group">
+          <h3>
+            Visual Regression Testing <span class="test-count">3 tests</span>
+          </h3>
+          <p class="test-group-what">
+            Take a full-page screenshot and compare it pixel-by-pixel against a
+            saved baseline image.
+          </p>
+          <p class="test-group-why">
+            <strong>Why this matters:</strong> Visual regression catches bugs
+            that no other test can detect &mdash; a CSS change that shifts a
+            button off-screen, a font that stopped loading, a layout that breaks
+            only on mobile. These are invisible to content-based tests because
+            the text is still "correct" even when it's rendered in the wrong
+            place. If more than 1% of pixels differ from the saved baseline, the
+            test fails. Baselines are updated intentionally by running
+            <code>--update-snapshots</code> when visual changes are expected.
+          </p>
+          <div class="test-how">
+            <strong>How it works:</strong>
+            <code
+              >page.toHaveScreenshot("name.png", { maxDiffPixelRatio: 0.01
+              })</code
+            >
+            captures a full-page screenshot and compares it to a stored baseline
+            PNG. If the images differ by more than 1% of pixels, the test fails
+            and Playwright saves an "actual", "expected", and "diff" image so
+            you can see exactly what changed. Each test runs on both Desktop
+            Chrome and Mobile viewports, so a total of 6 screenshot comparisons
+            happen per run.
+          </div>
+          <ul class="test-list">
+            <li class="test-item">
+              <span class="test-item-name"
+                >visual regression - homepage</span
+              >
+              <span class="test-item-desc"
+                >Screenshots the main site on desktop and mobile</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >visual regression - admin dashboard</span
+              >
+              <span class="test-item-desc"
+                >Screenshots the admin SPA dashboard on desktop and
+                mobile</span
+              >
+            </li>
+            <li class="test-item">
+              <span class="test-item-name"
+                >visual regression - portal dashboard</span
+              >
+              <span class="test-item-desc"
+                >Screenshots the portal SPA dashboard on desktop and
+                mobile</span
+              >
+            </li>
+          </ul>
+          <div class="source-links">
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/main-site.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >main-site.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/admin-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >admin-spa.spec.ts &#8599;</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/InkByteStudio/react-spa-monorepo-cicd/blob/main/e2e/tests/portal-spa.spec.ts"
+              target="_blank"
+              rel="noopener"
+              >portal-spa.spec.ts &#8599;</a
+            >
+          </div>
+        </div>
+
+        <!-- Multi-device callout -->
+        <div class="device-callout">
+          <h3>Multi-Device Coverage</h3>
+          <p>
+            Every test above runs twice: once on
+            <strong>Desktop Chrome</strong> (1280&times;720) and once on
+            <strong>Mobile Pixel&nbsp;5</strong> (393&times;851). That's 56
+            total test runs from 28 test definitions. This catches responsive
+            layout bugs, touch-target sizing issues, and viewport-specific
+            rendering problems. Configured in the Playwright
+            <code>projects</code> array.
+          </p>
+        </div>
+
+        <div class="section-footer">
+          <p class="run-locally">
+            Run E2E tests locally: <code>pnpm test:e2e</code>
+          </p>
+          <p class="run-locally">
+            Update visual baselines after intentional changes:
+            <code>pnpm test:e2e -- --update-snapshots</code>
+          </p>
+          <p class="run-locally">
+            Start all apps and run everything:
+            <code>pnpm run-all</code>
+          </p>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
