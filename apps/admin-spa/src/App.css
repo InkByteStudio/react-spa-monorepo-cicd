@@ -1,0 +1,103 @@
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.site-brand {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.site-brand:hover {
+  color: #2563eb;
+}
+
+.site-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.app-nav {
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.app-nav a {
+  color: #6b7280;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: background-color 0.15s ease;
+}
+
+.app-nav a:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.app-nav a.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.app-header {
+  margin-bottom: 2rem;
+}
+
+.app-header h1 {
+  font-size: 1.75rem;
+  color: #111827;
+  margin: 0 0 0.25rem;
+}
+
+.app-date {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.card h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
+  color: #1f2937;
+}
+
+.card p {
+  color: #374151;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+}

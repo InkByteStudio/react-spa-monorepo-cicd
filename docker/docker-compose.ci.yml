@@ -1,0 +1,13 @@
+# CI-specific overrides
+# Usage: docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml up -d
+services:
+  nginx:
+    # Don't expose ports to host in CI — use the Docker network directly
+    ports: !override []
+    # In CI, connect via the Docker network name
+    networks:
+      - ci
+
+networks:
+  ci:
+    driver: bridge

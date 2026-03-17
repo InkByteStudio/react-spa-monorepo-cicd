@@ -1,0 +1,360 @@
+# =============================================================================
+# GitLab CI/CD Pipeline
+#
+# Mirrors the GitHub Actions workflow using the same bash scripts.
+# Uses rules:changes for change detection — only runs jobs for modified apps.
+# Changes to packages/** trigger all SPA app jobs.
+#
+# Pipeline flow:
+#   validate (parallel) → build → e2e → deploy
+#
+# All validation gates must pass before deployment is allowed.
+#
+# Required CI/CD Variables (Settings > CI/CD > Variables):
+#   DEPLOY_SSH_KEY            (File type, protected, masked)
+#   DEPLOY_HOST               (protected, masked)
+#   DEPLOY_PORT               (protected, default: 22)
+#   DEPLOY_USER               (protected, masked)
+#   DEPLOY_MAIN_SITE_PATH     (protected)
+#   DEPLOY_ADMIN_SPA_PATH     (protected)
+#   DEPLOY_PORTAL_SPA_PATH    (protected)
+# =============================================================================
+
+stages:
+  - validate
+  - build
+  - e2e
+  - deploy
+
+default:
+  image: node:22.16.0
+  before_script:
+    - corepack enable
+    - pnpm install --frozen-lockfile
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store/
+    policy: pull-push
+
+variables:
+  PNPM_HOME: "$CI_PROJECT_DIR/.pnpm-store"
+
+# =============================================================================
+# Change detection templates
+# =============================================================================
+
+.admin-spa-mr-or-main:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - apps/admin-spa/**/*
+        - packages/**/*
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/admin-spa/**/*
+        - packages/**/*
+
+.portal-spa-mr-or-main:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - apps/portal-spa/**/*
+        - packages/**/*
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/portal-spa/**/*
+        - packages/**/*
+
+.main-site-mr-or-main:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - apps/main-site/**/*
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/main-site/**/*
+
+.any-app-mr-or-main:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - apps/**/*
+        - packages/**/*
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/**/*
+        - packages/**/*
+
+# Staging deploy templates
+.admin-spa-staging-only:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/admin-spa/**/*
+        - packages/**/*
+
+.portal-spa-staging-only:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/portal-spa/**/*
+        - packages/**/*
+
+.main-site-staging-only:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+      changes:
+        - apps/main-site/**/*
+
+# Production deploy templates (main branch only)
+.admin-spa-deploy-only:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - apps/admin-spa/**/*
+        - packages/**/*
+
+.portal-spa-deploy-only:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - apps/portal-spa/**/*
+        - packages/**/*
+
+.main-site-deploy-only:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - apps/main-site/**/*
+
+# =============================================================================
+# Validate stage (parallel jobs)
+# =============================================================================
+
+format-check:
+  stage: validate
+  extends: .any-app-mr-or-main
+  script:
+    - pnpm format:check
+
+lint:
+  stage: validate
+  extends: .any-app-mr-or-main
+  script:
+    - pnpm lint
+
+typecheck:
+  stage: validate
+  extends: .any-app-mr-or-main
+  script:
+    - pnpm typecheck
+
+unit-tests:
+  stage: validate
+  extends: .any-app-mr-or-main
+  script:
+    - pnpm test:coverage
+
+security-audit:
+  stage: validate
+  extends: .any-app-mr-or-main
+  script:
+    - pnpm audit --audit-level=high
+
+validate:main-site:
+  stage: validate
+  extends: .main-site-mr-or-main
+  before_script: []
+  script:
+    - bash scripts/build-main-site.sh
+
+# =============================================================================
+# Build stage (produces artifacts for E2E and deploy)
+# =============================================================================
+
+build:admin-spa:
+  stage: build
+  extends: .admin-spa-mr-or-main
+  script:
+    - bash scripts/build-spa.sh admin-spa
+  artifacts:
+    paths:
+      - apps/admin-spa/dist/
+    expire_in: 4 hours
+
+build:portal-spa:
+  stage: build
+  extends: .portal-spa-mr-or-main
+  script:
+    - bash scripts/build-spa.sh portal-spa
+  artifacts:
+    paths:
+      - apps/portal-spa/dist/
+    expire_in: 4 hours
+
+# =============================================================================
+# E2E stage (runs Playwright against Docker + nginx)
+# =============================================================================
+
+e2e-tests:
+  stage: e2e
+  extends: .any-app-mr-or-main
+  image: mcr.microsoft.com/playwright:v1.49.1-noble
+  before_script:
+    - corepack enable
+    - pnpm install --frozen-lockfile
+    - npx playwright install --with-deps chromium
+  needs:
+    - job: build:admin-spa
+      artifacts: true
+      optional: true
+    - job: build:portal-spa
+      artifacts: true
+      optional: true
+  script:
+    # Build any SPAs that weren't built in previous stage
+    - |
+      if [ ! -d "apps/admin-spa/dist" ]; then
+        bash scripts/build-spa.sh admin-spa
+      fi
+    - |
+      if [ ! -d "apps/portal-spa/dist" ]; then
+        bash scripts/build-spa.sh portal-spa
+      fi
+    # Serve apps with a lightweight HTTP server (no Docker needed)
+    - npm install -g serve
+    - mkdir -p /tmp/e2e-root/admin /tmp/e2e-root/portal
+    - cp -r apps/main-site/* /tmp/e2e-root/
+    - cp -r apps/admin-spa/dist/* /tmp/e2e-root/admin/
+    - cp -r apps/portal-spa/dist/* /tmp/e2e-root/portal/
+    - serve -l 8080 -s /tmp/e2e-root &
+    - |
+      for i in $(seq 1 10); do
+        curl -sf http://localhost:8080/ > /dev/null 2>&1 && break
+        echo "Waiting for server to be ready... ($i/10)"
+        sleep 1
+      done
+    - BASE_URL=http://localhost:8080 pnpm test:e2e
+  artifacts:
+    when: on_failure
+    paths:
+      - e2e/playwright-report/
+      - e2e/test-results/
+    expire_in: 7 days
+
+# =============================================================================
+# Deploy stage — staging (staging branch only)
+# =============================================================================
+
+staging:admin-spa:
+  stage: deploy
+  extends: .admin-spa-staging-only
+  before_script: []
+  needs:
+    - job: format-check
+    - job: lint
+    - job: typecheck
+    - job: unit-tests
+    - job: security-audit
+    - job: e2e-tests
+    - job: build:admin-spa
+      artifacts: true
+  script:
+    - bash scripts/ssh-setup.sh
+    - bash scripts/deploy-spa.sh admin-spa
+    - bash scripts/health-check.sh || true
+  environment:
+    name: staging
+
+staging:portal-spa:
+  stage: deploy
+  extends: .portal-spa-staging-only
+  before_script: []
+  needs:
+    - job: format-check
+    - job: lint
+    - job: typecheck
+    - job: unit-tests
+    - job: security-audit
+    - job: e2e-tests
+    - job: build:portal-spa
+      artifacts: true
+  script:
+    - bash scripts/ssh-setup.sh
+    - bash scripts/deploy-spa.sh portal-spa
+    - bash scripts/health-check.sh || true
+  environment:
+    name: staging
+
+staging:main-site:
+  stage: deploy
+  extends: .main-site-staging-only
+  before_script: []
+  needs:
+    - job: e2e-tests
+  script:
+    - bash scripts/ssh-setup.sh
+    - bash scripts/deploy-main-site.sh
+    - bash scripts/health-check.sh || true
+  environment:
+    name: staging
+
+# =============================================================================
+# Deploy stage — production (main branch only, needs all validation)
+# =============================================================================
+
+deploy:admin-spa:
+  stage: deploy
+  extends: .admin-spa-deploy-only
+  before_script: []
+  needs:
+    - job: format-check
+    - job: lint
+    - job: typecheck
+    - job: unit-tests
+    - job: security-audit
+    - job: e2e-tests
+    - job: build:admin-spa
+      artifacts: true
+  script:
+    - bash scripts/ssh-setup.sh
+    - bash scripts/deploy-spa.sh admin-spa
+    - bash scripts/health-check.sh || true
+  environment:
+    name: production
+
+deploy:portal-spa:
+  stage: deploy
+  extends: .portal-spa-deploy-only
+  before_script: []
+  needs:
+    - job: format-check
+    - job: lint
+    - job: typecheck
+    - job: unit-tests
+    - job: security-audit
+    - job: e2e-tests
+    - job: build:portal-spa
+      artifacts: true
+  script:
+    - bash scripts/ssh-setup.sh
+    - bash scripts/deploy-spa.sh portal-spa
+    - bash scripts/health-check.sh || true
+  environment:
+    name: production
+
+deploy:main-site:
+  stage: deploy
+  extends: .main-site-deploy-only
+  before_script: []
+  needs:
+    - job: e2e-tests
+  script:
+    - bash scripts/ssh-setup.sh
+    - bash scripts/deploy-main-site.sh
+    - bash scripts/health-check.sh || true
+  environment:
+    name: production

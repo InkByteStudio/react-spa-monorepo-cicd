@@ -1,0 +1,39 @@
+.users-search {
+  margin-bottom: 1rem;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.users-table td {
+  padding: 8px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.users-table tr:last-child td {
+  border-bottom: none;
+}
+
+.users-login-time {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.users-empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem 0.5rem;
+}
