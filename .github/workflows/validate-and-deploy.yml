@@ -35,7 +35,7 @@ jobs:
       portal-spa: ${{ steps.filter.outputs.portal-spa }}
       main-site: ${{ steps.filter.outputs.main-site }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -59,7 +59,7 @@ jobs:
       needs.detect-changes.outputs.portal-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -75,7 +75,7 @@ jobs:
       needs.detect-changes.outputs.portal-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -91,7 +91,7 @@ jobs:
       needs.detect-changes.outputs.portal-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -107,7 +107,7 @@ jobs:
       needs.detect-changes.outputs.portal-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -123,7 +123,7 @@ jobs:
       needs.detect-changes.outputs.portal-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -140,7 +140,7 @@ jobs:
     if: needs.detect-changes.outputs.admin-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -160,7 +160,7 @@ jobs:
     if: needs.detect-changes.outputs.portal-spa == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -180,7 +180,7 @@ jobs:
     if: needs.detect-changes.outputs.main-site == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: bash scripts/build-main-site.sh
 
   # ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ jobs:
        needs.detect-changes.outputs.main-site == 'true')
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
@@ -269,7 +269,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: staging
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -319,7 +319,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: staging
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -364,7 +364,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: staging
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate main site
         run: bash scripts/build-main-site.sh
@@ -422,7 +422,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download admin-spa build artifact
         uses: actions/download-artifact@v4
@@ -479,7 +479,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download portal-spa build artifact
         uses: actions/download-artifact@v4
@@ -520,7 +520,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate main site
         run: bash scripts/build-main-site.sh
