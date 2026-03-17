@@ -1,0 +1,18 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../apps/main-site:/srv/main-site:ro
+      - ../apps/admin-spa/dist:/srv/admin-spa:ro
+      - ../apps/portal-spa/dist:/srv/portal-spa:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s

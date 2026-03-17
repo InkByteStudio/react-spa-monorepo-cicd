@@ -1,0 +1,84 @@
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.select-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.select-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.select-input {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: inherit;
+  background: white;
+  color: #111827;
+}
+
+.select-input:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+  border-color: #2563eb;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+}
+
+.danger-zone {
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 1rem;
+  background: #fef2f2;
+}
+
+.danger-description {
+  font-size: 0.875rem;
+  color: #991b1b;
+  margin: 0 0 1rem;
+}
+
+.danger-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.danger-actions {
+  display: flex;
+  gap: 0.5rem;
+}

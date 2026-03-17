@@ -1,0 +1,14 @@
+.billing-summary {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.invoice-id {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .billing-summary {
+    grid-template-columns: 1fr;
+  }
+}

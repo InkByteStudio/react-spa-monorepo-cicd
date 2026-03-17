@@ -1,0 +1,9 @@
+{
+  "name": "@repo/main-site",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "bash ../../scripts/build-main-site.sh",
+    "deploy": "bash ../../scripts/deploy-main-site.sh"
+  }
+}

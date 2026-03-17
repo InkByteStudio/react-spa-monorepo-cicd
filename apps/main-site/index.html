@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monorepo Demo</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">Monorepo Demo</a>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/admin/">Admin Dashboard</a></li>
+          <li><a href="/portal/">Customer Portal</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="site-content">
+      <section class="hero">
+        <h1>Multiapp Monorepo</h1>
+        <p class="hero-subtitle">
+          A static marketing site served alongside two React SPAs &mdash; an
+          admin dashboard and a customer portal &mdash; all auto-deployed from a
+          single monorepo on merge to main.
+        </p>
+        <div class="hero-actions">
+          <a href="/admin/" class="btn btn-primary">Admin Dashboard</a>
+          <a href="/portal/" class="btn btn-secondary">Customer Portal</a>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="feature-card">
+          <h2>Change Detection</h2>
+          <p>
+            CI detects which apps changed and only validates and deploys those.
+            Shared package changes trigger all dependent apps.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h2>Full Validation Gates</h2>
+          <p>
+            Every merge must pass lint, typecheck, unit tests, build, and E2E
+            tests before deployment is allowed.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h2>Dual CI/CD Support</h2>
+          <p>
+            The same bash scripts power both GitHub Actions and GitLab CI
+            pipelines, ensuring consistent behavior.
+          </p>
+        </div>
+      </section>
+
+      <section class="architecture">
+        <h2 class="section-heading">Architecture</h2>
+        <div class="arch-grid">
+          <div class="arch-card">
+            <h3>Shared UI Library</h3>
+            <p>
+              Reusable React components &mdash; buttons, inputs, cards, alerts,
+              and badges &mdash; with CSS Module styling shared across both SPAs.
+            </p>
+          </div>
+          <div class="arch-card">
+            <h3>Shared Utilities</h3>
+            <p>
+              Common functions for date formatting, form validation, class names,
+              and local storage, consumed by both applications.
+            </p>
+          </div>
+          <div class="arch-card">
+            <h3>Independent Deploys</h3>
+            <p>
+              Each app builds and deploys independently. The admin dashboard,
+              customer portal, and this site each have their own build pipeline.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Monorepo CI/CD Demo</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+  </body>
+</html>

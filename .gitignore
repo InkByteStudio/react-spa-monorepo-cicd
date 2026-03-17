@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.claude/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Coverage
+coverage/
+
+# Deploy config (contains server credentials)
+config/deploy-targets.json
+
+# pnpm store
+.pnpm-store/
+
+# Playwright
+e2e/test-results/
+e2e/playwright-report/
+
+# TypeScript build info
+*.tsbuildinfo
