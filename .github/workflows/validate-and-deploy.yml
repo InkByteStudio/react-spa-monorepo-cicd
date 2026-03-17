@@ -207,13 +207,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # Download build artifacts (if they exist)
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: admin-spa-dist
           path: apps/admin-spa/dist/
         if: needs.detect-changes.outputs.admin-spa == 'true'
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: portal-spa-dist
           path: apps/portal-spa/dist/
@@ -425,7 +425,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download admin-spa build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: admin-spa-dist
           path: apps/admin-spa/dist/
@@ -482,7 +482,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download portal-spa build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: portal-spa-dist
           path: apps/portal-spa/dist/
