@@ -219,14 +219,20 @@ jobs:
           path: apps/portal-spa/dist/
         if: needs.detect-changes.outputs.portal-spa == 'true'
 
-      # Build any SPAs that weren't changed (E2E tests need all apps)
+      # Build any SPAs that weren't changed (E2E tests need all apps).
+      # These use a placeholder API URL since the apps aren't under test —
+      # they just need to produce valid build output for Docker/nginx.
       - name: Build admin-spa (if not changed)
         if: needs.detect-changes.outputs.admin-spa != 'true'
         run: bash scripts/build-spa.sh admin-spa
+        env:
+          VITE_API_BASE_URL: https://api.placeholder.local
 
       - name: Build portal-spa (if not changed)
         if: needs.detect-changes.outputs.portal-spa != 'true'
         run: bash scripts/build-spa.sh portal-spa
+        env:
+          VITE_API_BASE_URL: https://api.placeholder.local
 
       - name: Start Docker environment
         run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml up -d --wait
